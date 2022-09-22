@@ -7,6 +7,28 @@
   <title>vue code learning</title>
 </head>
 <body>
-  <div id="id">Hello, Vue</div>
+  <div id="app">Hello, Vue</div>
+  <script src="dist/vue.js"></script>
+  <script>
+    const vm = new Vue({
+      el: '#el',
+      data() {
+        // 此处的 this 指向 window 对象而非 Vue 实例对象
+        // 故在初始化 data 属性的方法里，需要使用 call 方法改变 this 的指向
+        console.info('this ==> ', this)
+        return {
+          name: 'Zero',
+          age: 36,
+          aaa: {
+            bbb: 'byd'
+          }
+        }
+      }
+    })
+    vm._data.aaa = {
+      ddd: 'ddddddddd'
+    }
+    console.info('_data ', vm._data)
+  </script>
 </body>
 </html>
