@@ -21,14 +21,14 @@
           age: 36,
           aaa: {
             bbb: 'byd'
-          }
+          },
+          list: [1, 2, 3, 4],
+          objList: [{one: 1}, {two: 2}]
         }
       }
     })
-    vm._data.aaa = {
-      ddd: 'ddddddddd'
-    }
-    console.info('_data ', vm._data)
+
+    console.info('_data ', vm._data.objList.splice(1, 0, {three: 3}))
   </script>
 </body>
 </html>

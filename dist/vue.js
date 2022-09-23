@@ -39,6 +39,42 @@
     return Constructor;
   }
 
+  var oldArrayProtoMethods = Array.prototype;
+  var arrayMethods = Object.create(oldArrayProtoMethods);
+  var methods = ['push', 'pop', 'unshift', 'shift', 'splice'];
+  methods.forEach(function (item) {
+    arrayMethods[item] = function () {
+      console.log('进行数组方法劫持'); // 在此写入劫持数组的逻辑
+
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      var result = oldArrayProtoMethods[item].apply(this, args);
+      var inserted;
+
+      switch (item) {
+        case 'push':
+        case 'unshift':
+          inserted = args;
+          break;
+
+        case 'splice':
+          inserted = args.splice(2);
+          break;
+      }
+
+      console.info('this in array proxy ', this);
+      var ob = this.__ob__;
+
+      if (inserted) {
+        ob.observeArray(inserted);
+      }
+
+      return result;
+    };
+  });
+
   function observer(data) {
     console.info('data to be observed ', data); // data 中的数据如果不是对象类型则不需要劫持
 
@@ -55,7 +91,17 @@
     function Observer(val) {
       _classCallCheck(this, Observer);
 
-      this.walk(val);
+      Object.defineProperty(val, '__ob__', {
+        enumerable: false,
+        value: this
+      });
+
+      if (Array.isArray(val)) {
+        val.__proto__ = arrayMethods;
+        this.observeArray(val);
+      } else {
+        this.walk(val);
+      }
     }
 
     _createClass(Observer, [{
@@ -67,6 +113,13 @@
           var key = keys[i];
           var value = obj[key];
           defineReactive(obj, key, value);
+        }
+      }
+    }, {
+      key: "observeArray",
+      value: function observeArray(array) {
+        for (var i = 0; i < array.length; i++) {
+          observer(array[i]);
         }
       }
     }]);

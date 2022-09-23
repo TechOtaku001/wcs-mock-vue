@@ -1,3 +1,4 @@
+import arrayMethods from "./array"
 
 export function observer(data) {
   console.info('data to be observed ', data)
@@ -15,7 +16,18 @@ export function observer(data) {
 // 所以需要遍历 data 属性
 class Observer {
   constructor(val) {
-    this.walk(val)
+
+    Object.defineProperty(val, '__ob__', {
+      enumerable: false,
+      value: this
+    })
+
+    if (Array.isArray(val)) {
+      val.__proto__ = arrayMethods
+      this.observeArray(val)
+    } else {
+      this.walk(val)
+    }
   }
 
   walk(obj) {
@@ -25,6 +37,11 @@ class Observer {
       let key = keys[i]
       let value = obj[key]
       defineReactive(obj, key, value)
+    }
+  }
+  observeArray(array) {
+    for(let i = 0; i < array.length; i++) {
+      observer(array[i])
     }
   }
 }
